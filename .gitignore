@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environments
+.venv/
+venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+
+# Test artifacts
+reports/
+allure-results/
+allure-report/
+
+# OS
+.DS_Store
+Thumbs.db
