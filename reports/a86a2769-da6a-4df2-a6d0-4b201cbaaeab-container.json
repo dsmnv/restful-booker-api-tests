@@ -1,0 +1,1 @@
+{"uuid": "cbb46a0c-c9ac-42c7-810d-f663325e1a82", "children": ["d4cfc4dd-0068-4a4d-8acc-f1aec84fcff7"], "befores": [{"name": "create_booking", "status": "passed", "steps": [{"name": "Бронирование создано", "status": "passed", "start": 1743968498855, "stop": 1743968498855}], "start": 1743968498363, "stop": 1743968498855}], "start": 1743968498363, "stop": 1743968499303}
