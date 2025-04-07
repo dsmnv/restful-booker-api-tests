@@ -4,6 +4,7 @@ import shutil
 import os
 import requests
 from utils.data_generator import get_booking_payload
+from utils.assertions import assert_booking_equal
 
 BASE_URL = 'https://restful-booker.herokuapp.com'
 
@@ -28,6 +29,9 @@ def create_booking():
     with allure.step('Бронирование создано'):
         assert response.status_code == 200
     data = response.json()
+    booking = data['booking']
+    with allure.step('Данные в бронирование записаны корректно'):
+        assert_booking_equal(payload, booking)
     return {
         'id': data['bookingid'],
         'payload': payload
