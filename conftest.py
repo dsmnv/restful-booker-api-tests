@@ -50,3 +50,11 @@ def auth_token():
     token = data['token']
     return token
 
+
+@pytest.fixture()
+def booking_id_list():
+    response = requests.get(f'{BASE_URL}/booking')
+    assert response.status_code == 200
+
+    data = response.json()
+    return data
