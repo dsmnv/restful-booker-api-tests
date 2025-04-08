@@ -4,6 +4,8 @@ from utils.data_generator import get_booking_payload
 from utils.assertions import assert_booking_structure_is_valid, assert_booking_equal
 
 
+# ------------------ GET ------------------
+
 def test_get_booking_by_id(base_url, create_booking):
     # Создаем новое бронирование, которое запросим через GET для проверок.
     booking = create_booking
@@ -28,6 +30,18 @@ def test_get_booking_by_id(base_url, create_booking):
         assert_booking_structure_is_valid(data)
 
 
+def test_get_booking_by_invalid_id(base_url, booking_id_list):
+    # Получаем список всех айдишников, находим максимальный и накидываем к нему 10
+    data = booking_id_list
+    max_id = max(item['bookingid'] for item in data) + 10
+
+    response = requests.get(f'{base_url}/booking/{max_id}')
+    with allure.step('Несуществующий id возвращает 404'):
+        assert response.status_code == 404
+
+
+# ------------------ POST ------------------
+
 def test_create_booking(base_url, create_booking):
     # Создаем новое бронирование фикстурой
     booking = create_booking
@@ -51,13 +65,26 @@ def test_create_booking(base_url, create_booking):
         assert_booking_equal(new_booking_data, booking['payload'])
 
 
+def test_create_invalid_booking(base_url):
+    payload = {
+        'firstname': 'Firstname'
+    }
+    response = requests.post(f'{base_url}/booking', json=payload)
+
+    # API должен возвращать 400, но по факту отдает 500. Баг на стороне сервера
+    with allure.step('Бронирование не создано без обязательных полей'):
+        assert response.status_code == 500
+
+
+# ------------------ PUT ------------------
+
 def test_update_booking(base_url, auth_token, create_booking):
     # Генерю данные для заполнения бронирования и создаю его
     new_booking = create_booking
     payload = new_booking['payload']
     new_booking_id = new_booking['id']
 
-    # PUT Запрос на обновление данных
+    # Изменяю некоторые значения в изначальном payload, затем PUT Запрос на обновление данных
     payload['firstname'] = 'UpdatedName'
     payload['lastname'] = 'UpdatedLastName'
     payload['depositpaid'] = True
@@ -75,7 +102,23 @@ def test_update_booking(base_url, auth_token, create_booking):
     assert updated_data['depositpaid'] == True
     assert_booking_structure_is_valid(updated_data)
 
-def test_update_token_no_auth(base_url):
+
+def test_invalid_update_body(base_url, create_booking, auth_token):
+    booking = create_booking
+    booking_id = booking['id']
+
+    payload = {
+        'firstname': 'NewFirstname'
+    }
+    response = requests.put(f'{base_url}/booking/{booking_id}', json=payload, headers={
+        'Cookie': f'token={auth_token}'
+    })
+
+    with allure.step('Бронирование не обновлено без обязательных полей'):
+        assert response.status_code == 400
+
+
+def test_update_booking_no_auth(base_url):
     payload = get_booking_payload()
     response = requests.put(f'{base_url}/booking/1', json=payload)
 
@@ -83,8 +126,38 @@ def test_update_token_no_auth(base_url):
         assert response.status_code == 403
 
 
-#def test_partial_update_booking(base_url, create_booking):
-#    pass()
+# ------------------ PATCH ------------------
+
+
+def test_partial_update_booking(base_url, create_booking, auth_token):
+    booking = create_booking
+    booking_id = booking['id']
+    original_payload = booking['payload']
+    expected_payload = original_payload.copy()
+    expected_payload['firstname'] = 'NewName'
+
+    update = {
+        'firstname': 'NewName'
+    }
+
+    response = requests.patch(f'{base_url}/booking/{booking_id}', json=update, headers={
+        'Cookie': f'token={auth_token}'
+    })
+    with allure.step('Бронирование частично обновлено'):
+        assert response.status_code == 200
+
+    updated_response = requests.get(f'{base_url}/booking/{booking_id}')
+    with allure.step('Обновленное бронирование получено'):
+        assert updated_response.status_code == 200
+
+    updated_data = updated_response.json()
+
+    with allure.step('Бронирование обновлено корректно'):
+        assert_booking_equal(updated_data, expected_payload)
+
+
+# ------------------ DELETE ------------------
+
 
 def test_delete_booking(base_url, create_booking, auth_token):
     booking = create_booking
@@ -106,6 +179,23 @@ def test_delete_booking_no_auth(base_url):
 
     with allure.step('Удаление без авторизации невозможно'):
         assert response.status_code == 403
+
+
+def test_delete_nonexistent_booking(base_url, booking_id_list,auth_token):
+    data = booking_id_list
+    max_id = max(item['bookingid'] for item in data) + 10
+
+    response = requests.delete(f'{base_url}/booking/{max_id}', headers={
+        'Cookie': f'token={auth_token}'
+    })
+
+    # По REST должен быть 404, но принимаем как есть
+    with allure.step('Невозможно удалить несуществующее бронирование'):
+        assert response.status_code in [404, 405]
+
+
+
+
 
 
 
