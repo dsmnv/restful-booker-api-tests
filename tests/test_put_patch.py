@@ -1,8 +1,11 @@
 import requests
+import pytest
 import allure
 from utils.assertions import assert_booking_structure_is_valid, assert_booking_equal
 from utils.data_generator import get_booking_payload
 
+
+@pytest.mark.positive()
 def test_update_booking(base_url, auth_token, create_booking):
     # Генерю данные для заполнения бронирования и создаю его
     new_booking = create_booking
@@ -28,6 +31,7 @@ def test_update_booking(base_url, auth_token, create_booking):
     assert_booking_structure_is_valid(updated_data)
 
 
+@pytest.mark.negative()
 def test_invalid_update_body(base_url, create_booking, auth_token):
     booking = create_booking
     booking_id = booking['id']
@@ -43,6 +47,7 @@ def test_invalid_update_body(base_url, create_booking, auth_token):
         assert response.status_code == 400
 
 
+@pytest.mark.negative()
 def test_update_booking_no_auth(base_url):
     payload = get_booking_payload()
     response = requests.put(f'{base_url}/booking/1', json=payload)
@@ -54,6 +59,7 @@ def test_update_booking_no_auth(base_url):
 # ------------------ PATCH ------------------
 
 
+@pytest.mark.positive()
 def test_partial_update_booking(base_url, create_booking, auth_token):
     booking = create_booking
     booking_id = booking['id']

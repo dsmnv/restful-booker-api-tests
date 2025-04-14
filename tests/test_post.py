@@ -1,8 +1,10 @@
 import requests
+import pytest
 import allure
 from utils.assertions import assert_booking_equal
 
 
+@pytest.mark.positive()
 def test_create_booking(base_url, create_booking):
     # Создаем новое бронирование фикстурой
     booking = create_booking
@@ -26,6 +28,7 @@ def test_create_booking(base_url, create_booking):
         assert_booking_equal(new_booking_data, booking['payload'])
 
 
+@pytest.mark.negative()
 def test_create_invalid_booking(base_url):
     payload = {
         'firstname': 'Firstname'

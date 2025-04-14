@@ -1,7 +1,9 @@
 import requests
+import pytest
 import allure
 
 
+@pytest.mark.positive()
 def test_delete_booking(base_url, create_booking, auth_token):
     booking = create_booking
     booking_id = booking['id']
@@ -17,6 +19,7 @@ def test_delete_booking(base_url, create_booking, auth_token):
         assert updated_response.status_code == 404
 
 
+@pytest.mark.negative()
 def test_delete_booking_no_auth(base_url):
     response = requests.delete(f'{base_url}/booking/1')
 
@@ -24,9 +27,10 @@ def test_delete_booking_no_auth(base_url):
         assert response.status_code == 403
 
 
+@pytest.mark.negative()
 def test_delete_nonexistent_booking(base_url, booking_id_list,auth_token):
     data = booking_id_list
-    max_id = max(item['bookingid'] for item in data) + 10
+    max_id = max(item['bookingid'] for item in data) + 100
 
     response = requests.delete(f'{base_url}/booking/{max_id}', headers={
         'Cookie': f'token={auth_token}'

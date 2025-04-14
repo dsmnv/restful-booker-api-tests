@@ -1,8 +1,10 @@
+import pytest
 import requests
 import allure
 from utils.assertions import assert_booking_structure_is_valid
 
 
+@pytest.mark.positive()
 def test_get_booking_by_id(base_url, create_booking):
     # Создаем новое бронирование, которое запросим через GET для проверок.
     booking = create_booking
@@ -27,10 +29,11 @@ def test_get_booking_by_id(base_url, create_booking):
         assert_booking_structure_is_valid(data)
 
 
+@pytest.mark.negative()
 def test_get_booking_by_invalid_id(base_url, booking_id_list):
     # Получаем список всех айдишников, находим максимальный и накидываем к нему 10
     data = booking_id_list
-    max_id = max(item['bookingid'] for item in data) + 10
+    max_id = max(item['bookingid'] for item in data) + 100
 
     response = requests.get(f'{base_url}/booking/{max_id}')
     with allure.step('Несуществующий id возвращает 404'):
