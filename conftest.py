@@ -5,6 +5,7 @@ import os
 import requests
 from utils.data_generator import get_booking_payload
 from utils.assertions import assert_booking_equal
+from utils.api_client import create_booking, authorization
 
 BASE_URL = 'https://restful-booker.herokuapp.com'
 
@@ -23,9 +24,9 @@ def base_url():
 
 
 @pytest.fixture()
-def create_booking():
+def prepared_booking():
     payload = get_booking_payload()
-    response = requests.post(f'{BASE_URL}/booking', json=payload)
+    response = create_booking(BASE_URL, payload)
     with allure.step('Бронирование создано'):
         assert response.status_code == 200
     data = response.json()
@@ -44,7 +45,7 @@ def auth_token():
         'username': 'admin',
         'password': 'password123'
     }
-    response = requests.post(f'{BASE_URL}/auth', json=auth_data)
+    response = authorization(BASE_URL, auth_data)
     assert response.status_code == 200
     data = response.json()
     token = data['token']

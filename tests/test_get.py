@@ -1,17 +1,17 @@
 import pytest
-import requests
 import allure
 from utils.assertions import assert_booking_structure_is_valid
+from utils.api_client import get_booking
 
 
 @pytest.mark.positive()
-def test_get_booking_by_id(base_url, create_booking):
+def test_get_booking_by_id(base_url, prepared_booking):
     # Создаем новое бронирование, которое запросим через GET для проверок.
-    booking = create_booking
+    booking = prepared_booking
     booking_id = booking['id']
 
     # Основные проверки GET запроса.
-    response = requests.get(f'{base_url}/booking/{booking_id}')
+    response = get_booking(base_url, booking_id)
     data = response.json()
     expected_keys = ['firstname', 'lastname', 'totalprice', 'depositpaid', 'bookingdates', 'additionalneeds']
 
@@ -35,6 +35,6 @@ def test_get_booking_by_invalid_id(base_url, booking_id_list):
     data = booking_id_list
     max_id = max(item['bookingid'] for item in data) + 100
 
-    response = requests.get(f'{base_url}/booking/{max_id}')
+    response = get_booking(base_url, max_id)
     with allure.step('Несуществующий id возвращает 404'):
         assert response.status_code == 404

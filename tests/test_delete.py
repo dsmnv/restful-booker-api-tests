@@ -1,21 +1,20 @@
 import requests
 import pytest
 import allure
+from utils.api_client import get_booking, delete_booking
 
 
 @pytest.mark.positive()
-def test_delete_booking(base_url, create_booking, auth_token):
-    booking = create_booking
+def test_delete_booking(base_url, prepared_booking, auth_token):
+    booking = prepared_booking
     booking_id = booking['id']
 
-    response = requests.delete(f'{base_url}/booking/{booking_id}', headers={
-        'Cookie': f'token={auth_token}'
-    })
-    with allure.step('Пользователь удален успешно'):
+    response = delete_booking(base_url, booking_id, auth_token)
+    with allure.step('Бронирование успешно'):
         assert response.status_code == 201
 
-    updated_response = requests.get(f'{base_url}/booking/{booking_id}')
-    with allure.step('Удаленного пользователя нет в БД'):
+    updated_response = get_booking(base_url, booking_id)
+    with allure.step('Удаленного бронирования нет в БД'):
         assert updated_response.status_code == 404
 
 
@@ -32,9 +31,7 @@ def test_delete_nonexistent_booking(base_url, booking_id_list,auth_token):
     data = booking_id_list
     max_id = max(item['bookingid'] for item in data) + 100
 
-    response = requests.delete(f'{base_url}/booking/{max_id}', headers={
-        'Cookie': f'token={auth_token}'
-    })
+    response = delete_booking(base_url, max_id, auth_token)
 
     # По REST должен быть 404, но принимаем как есть
     with allure.step('Невозможно удалить несуществующее бронирование'):

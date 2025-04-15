@@ -3,26 +3,25 @@ import pytest
 import allure
 from utils.assertions import assert_booking_structure_is_valid, assert_booking_equal
 from utils.data_generator import get_booking_payload
+from utils.api_client import get_booking, update_booking_put, update_booking_patch
 
 
 @pytest.mark.positive()
-def test_update_booking(base_url, auth_token, create_booking):
+def test_update_booking(base_url, auth_token, prepared_booking):
     # Генерю данные для заполнения бронирования и создаю его
-    new_booking = create_booking
-    payload = new_booking['payload']
-    new_booking_id = new_booking['id']
+    booking = prepared_booking
+    payload = booking['payload']
+    booking_id = booking['id']
 
     # Изменяю некоторые значения в изначальном payload, затем PUT Запрос на обновление данных
     payload['firstname'] = 'UpdatedName'
     payload['lastname'] = 'UpdatedLastName'
     payload['depositpaid'] = True
-    response = requests.put(f'{base_url}/booking/{new_booking_id}', json=payload, headers={
-        'Cookie': f'token={auth_token}'
-    })
+    response = update_booking_put(base_url, booking_id, payload, auth_token)
     assert response.status_code == 200
 
     # GET Обращаюсь к обновленному бронированию
-    updated_response = requests.get(f'{base_url}/booking/{new_booking_id}')
+    updated_response = get_booking(base_url, booking_id)
     updated_data = updated_response.json()
 
     assert updated_data['firstname'] == 'UpdatedName'
@@ -32,16 +31,14 @@ def test_update_booking(base_url, auth_token, create_booking):
 
 
 @pytest.mark.negative()
-def test_invalid_update_body(base_url, create_booking, auth_token):
-    booking = create_booking
+def test_invalid_update_body(base_url, prepared_booking, auth_token):
+    booking = prepared_booking
     booking_id = booking['id']
 
     payload = {
         'firstname': 'NewFirstname'
     }
-    response = requests.put(f'{base_url}/booking/{booking_id}', json=payload, headers={
-        'Cookie': f'token={auth_token}'
-    })
+    response = update_booking_put(base_url, booking_id, payload, auth_token)
 
     with allure.step('Бронирование не обновлено без обязательных полей'):
         assert response.status_code == 400
@@ -60,8 +57,8 @@ def test_update_booking_no_auth(base_url):
 
 
 @pytest.mark.positive()
-def test_partial_update_booking(base_url, create_booking, auth_token):
-    booking = create_booking
+def test_partial_update_booking(base_url, prepared_booking, auth_token):
+    booking = prepared_booking
     booking_id = booking['id']
     original_payload = booking['payload']
     expected_payload = original_payload.copy()
@@ -71,13 +68,11 @@ def test_partial_update_booking(base_url, create_booking, auth_token):
         'firstname': 'NewName'
     }
 
-    response = requests.patch(f'{base_url}/booking/{booking_id}', json=update, headers={
-        'Cookie': f'token={auth_token}'
-    })
+    response = update_booking_patch(base_url, booking_id, update, auth_token)
     with allure.step('Бронирование частично обновлено'):
         assert response.status_code == 200
 
-    updated_response = requests.get(f'{base_url}/booking/{booking_id}')
+    updated_response = get_booking(base_url, booking_id)
     with allure.step('Обновленное бронирование получено'):
         assert updated_response.status_code == 200
 
