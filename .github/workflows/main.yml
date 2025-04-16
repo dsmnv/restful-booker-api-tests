@@ -1,4 +1,4 @@
-name: Run API Tests
+name: Run API Tests with Allure
 
 on: [push, pull_request]
 
@@ -20,5 +20,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run tests
-        run: pytest --maxfail=1 --disable-warnings
+      - name: Run tests with Allure
+        run: pytest --maxfail=1 --disable-warnings --alluredir=reports
+
+      - name: Install Allure CLI
+        run: |
+          sudo apt update
+          sudo apt install -y default-jre
+          wget https://github.com/allure-framework/allure2/releases/download/2.25.0/allure-2.25.0.tgz
+          tar -zxvf allure-2.25.0.tgz
+          sudo mv allure-2.25.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+
+      - name: Generate Allure report
+        run: |
+          allure generate reports -o allure-report --clean\
+
+      - name: Upload Allure report as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: allure-report
+          path: allure-report
