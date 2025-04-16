@@ -27,6 +27,10 @@ pytest --alluredir=reports
 ```bash
 allure serve reports
 ```
+---
+## Пример Allure‑отчёта
+
+![Allure report](docs/allure_rep.png)
 
 ---
 
