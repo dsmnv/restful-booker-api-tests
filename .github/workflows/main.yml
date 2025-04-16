@@ -36,8 +36,9 @@ jobs:
         run: |
           allure generate reports -o allure-report --clean
 
-      - name: Upload Allure report as artifact
-        uses: actions/upload-artifact@8e72af9387e8dd6b4967174e3e7a8ff9b1b3c9ae
-        with:
-          name: allure-report
-          path: allure-report
+      - name: Archive Allure report manually
+        run: |
+          zip -r allure-report.zip allure-report
+
+      - name: Save report as a raw build artifact
+        run: echo "::notice file=allure-report.zip::Download Allure Report"
