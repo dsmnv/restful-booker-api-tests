@@ -39,7 +39,7 @@ def test_get_booking_by_id(base_url, prepared_booking):
         allure.attach(str(booking_id), name='Booking ID', attachment_type=allure.attachment_type.TEXT)
         allure.attach(
             json.dumps(data, indent=2),
-            name='Полученные данные по бронироованию',
+            name='Полученные данные по бронированию',
             attachment_type=allure.attachment_type.JSON
         )
 

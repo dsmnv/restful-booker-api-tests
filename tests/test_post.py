@@ -22,18 +22,6 @@ def test_create_booking(base_url, prepared_booking):
     booking_id = booking['id']
     # Переданные в бронирование данные
     payload = booking['payload']
-    # Основные проверки POST запроса.
-    expected_keys = ['firstname', 'lastname', 'totalprice', 'depositpaid', 'bookingdates', 'additionalneeds']
-
-    with allure.step('Присутствуют переданные ключи'):
-        for key in expected_keys:
-            assert key in booking['payload']
-        allure.attach(
-            json.dumps(expected_keys, indent=2, ensure_ascii=False),
-            name='Ожидаемые ключи',
-            attachment_type=allure.attachment_type.JSON
-        )
-
     # Делаем GET с указанием айдишника только что созданного бронирования и проверяем ответ.
     new_booking = get_booking(base_url, booking_id)
     # Полученные данные нового бронирования

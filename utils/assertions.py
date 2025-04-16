@@ -24,7 +24,7 @@ def assert_booking_structure_is_valid(data: dict):
         assert 'checkout' in data['bookingdates'], "Missing checkout"
 
 
-def assert_booking_equal(actual, expected):
+def assert_booking_equal(actual: dict, expected: dict):
     assert actual['firstname'] == expected['firstname']
     assert actual['lastname'] == expected['lastname']
     assert actual['totalprice'] == expected['totalprice']

@@ -27,7 +27,7 @@ def delete_booking(base_url: str, booking_id: int, token:str) -> requests.Respon
     })
 
 
-def authorization(base_url: str, auth_data: dict):
+def authorization(base_url: str, auth_data: dict) -> requests.Response:
     return requests.post(f'{base_url}/auth', json=auth_data)
 
 

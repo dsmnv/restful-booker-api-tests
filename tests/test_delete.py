@@ -19,7 +19,7 @@ def test_delete_booking(base_url, prepared_booking, auth_token):
     booking_id = booking['id']
 
     response = delete_booking(base_url, booking_id, auth_token)
-    with allure.step('Бронирование успешно'):
+    with allure.step('Бронирование успешно удалено'):
         assert response.status_code == 201
 
     updated_response = get_booking(base_url, booking_id)
@@ -29,7 +29,7 @@ def test_delete_booking(base_url, prepared_booking, auth_token):
 
 @allure.title('Удаление бронирования без авторизации')
 @allure.description('''
-Тест передает DELETE запрос без обязательного токена авторизации. 
+Тест удаляет бронирование без токена авторизации. 
  ''')
 @allure.feature('Booking API')
 @allure.story('DELETE /booking')
